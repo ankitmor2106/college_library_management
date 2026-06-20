@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="College Library Management System — manage books, members, transactions, and fines." />
+  <meta name="theme-color" content="#2b1209" />
+  <title>College Library Management System</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+
+  <div class="app-shell">
+
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+
+      <div class="sidebar__brand">
+        <div class="sidebar__logo-text">CL</div>
+        <div class="sidebar__name">
+          College Library
+          <span>Management System</span>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav" aria-label="Application pages">
+
+        <p class="nav-section-label">Overview</p>
+
+        <div class="nav-item" data-route="dashboard" role="link" tabindex="0" aria-label="Dashboard">
+          Dashboard
+        </div>
+
+        <p class="nav-section-label">Catalog</p>
+
+        <div class="nav-item" data-route="books" role="link" tabindex="0" aria-label="Books">
+          Books
+        </div>
+
+        <div class="nav-item" data-route="authors" role="link" tabindex="0" aria-label="Authors">
+          Authors
+        </div>
+
+        <div class="nav-item" data-route="publishers" role="link" tabindex="0" aria-label="Publishers">
+          Publishers
+        </div>
+
+        <div class="nav-item" data-route="categories" role="link" tabindex="0" aria-label="Categories">
+          Categories
+        </div>
+
+        <div class="nav-item" data-route="copies" role="link" tabindex="0" aria-label="Book Copies">
+          Book Copies
+        </div>
+
+        <p class="nav-section-label">Circulation</p>
+
+        <div class="nav-item" data-route="members" role="link" tabindex="0" aria-label="Members">
+          Members
+        </div>
+
+        <div class="nav-item" data-route="librarians" role="link" tabindex="0" aria-label="Librarians">
+          Librarians
+        </div>
+
+        <div class="nav-item" data-route="transactions" role="link" tabindex="0" aria-label="Transactions">
+          Transactions
+        </div>
+
+        <div class="nav-item" data-route="fines" role="link" tabindex="0" aria-label="Fines">
+          Fines
+        </div>
+
+        <p class="nav-section-label">Insights</p>
+
+        <div class="nav-item" data-route="reports" role="link" tabindex="0" aria-label="Reports">
+          Reports
+        </div>
+
+      </nav>
+
+      <div class="sidebar__footer">
+        <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle light/dark theme" title="Toggle theme">
+          <span class="theme-toggle__label" id="theme-label">Dark Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <header class="topbar" role="banner">
+      <button
+        class="topbar__hamburger"
+        id="hamburger-btn"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="sidebar"
+      >
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+
+      <div class="topbar__breadcrumb" aria-live="polite">
+        Library /
+        <strong id="breadcrumb-current">Dashboard</strong>
+      </div>
+
+      <div class="topbar__spacer"></div>
+
+      <div class="topbar__meta">
+        <span id="topbar-date" aria-label="Today's date"></span>
+        <div class="topbar__avatar" aria-label="Admin user" title="Admin">A</div>
+      </div>
+    </header>
+
+    <main class="main-content" id="app-content" role="main" aria-live="polite"></main>
+
+  </div>
+
+  <div
+    class="sidebar-overlay"
+    id="sidebar-overlay"
+    role="presentation"
+    aria-hidden="true"
+  ></div>
+
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <script type="module" src="app.js"></script>
+
+  <script>
+    (function () {
+      const el = document.getElementById('topbar-date');
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    })();
+  </script>
+
+</body>
+</html>
