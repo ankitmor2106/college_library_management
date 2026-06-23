@@ -1,7 +1,7 @@
 
 -- TABLE 1: publishers
 CREATE TABLE publishers (
-    publisher_id    SERIAL PRIMARY KEY,
+    publisher_id    INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     publisher_name  VARCHAR(150) NOT NULL,
     address         VARCHAR(255),
     phone           VARCHAR(15),
@@ -10,14 +10,14 @@ CREATE TABLE publishers (
 
 -- TABLE 2: categories
 CREATE TABLE categories (
-    category_id     SERIAL PRIMARY KEY,
+    category_id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     category_name   VARCHAR(100) NOT NULL UNIQUE,
     description     TEXT
 );
 
 -- TABLE 3: authors
 CREATE TABLE authors (
-    author_id       SERIAL PRIMARY KEY,
+    author_id       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     first_name      VARCHAR(50) NOT NULL,
     last_name       VARCHAR(50) NOT NULL,
     email           VARCHAR(100) UNIQUE
@@ -25,30 +25,29 @@ CREATE TABLE authors (
 
 -- TABLE 4: books
 CREATE TABLE books (
-    book_id         SERIAL PRIMARY KEY,
+    book_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title           VARCHAR(255) NOT NULL,
     isbn            VARCHAR(20) NOT NULL UNIQUE,
-    publisher_id    BIGINT UNSIGNED NOT NULL,
-    category_id     BIGINT UNSIGNED NOT NULL,
+    publisher_id    INT NOT NULL,
+    category_id     INT NOT NULL,
     year_published  YEAR,
     total_copies    INT DEFAULT 1,
-    CONSTRAINT chk_copies CHECK (total_copies >= 1),
-    CONSTRAINT fk_book_publisher FOREIGN KEY (publisher_id) REFERENCES publishers(publisher_id),
-    CONSTRAINT fk_book_category  FOREIGN KEY (category_id)  REFERENCES categories(category_id)
+    FOREIGN KEY (publisher_id) REFERENCES publishers(publisher_id),
+    FOREIGN KEY (category_id)  REFERENCES categories(category_id)
 );
 
 -- TABLE 5: book_authors (M:N junction table)
 CREATE TABLE book_authors (
-    book_id         BIGINT UNSIGNED NOT NULL,
-    author_id       BIGINT UNSIGNED NOT NULL,
+    book_id         INT NOT NULL,
+    author_id       INT NOT NULL,
     PRIMARY KEY (book_id, author_id),
-    CONSTRAINT fk_ba_book   FOREIGN KEY (book_id)   REFERENCES books(book_id),
-    CONSTRAINT fk_ba_author FOREIGN KEY (author_id) REFERENCES authors(author_id)
+    FOREIGN KEY (book_id)   REFERENCES books(book_id),
+    FOREIGN KEY (author_id) REFERENCES authors(author_id)
 );
 
 -- TABLE 6: members
 CREATE TABLE members (
-    member_id           SERIAL PRIMARY KEY,
+    member_id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     first_name          VARCHAR(50) NOT NULL,
     last_name           VARCHAR(50) NOT NULL,
     email               VARCHAR(100) NOT NULL UNIQUE,
@@ -60,7 +59,7 @@ CREATE TABLE members (
 
 -- TABLE 7: librarians
 CREATE TABLE librarians (
-    librarian_id    SERIAL PRIMARY KEY,
+    librarian_id    INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     first_name      VARCHAR(50) NOT NULL,
     last_name       VARCHAR(50) NOT NULL,
     email           VARCHAR(100) NOT NULL UNIQUE,
@@ -70,43 +69,41 @@ CREATE TABLE librarians (
 
 -- TABLE 8: book_copies
 CREATE TABLE book_copies (
-    copy_id         SERIAL PRIMARY KEY,
-    book_id         BIGINT UNSIGNED NOT NULL,
+    copy_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    book_id         INT NOT NULL,
     book_condition  ENUM('Good', 'Fair', 'Poor') DEFAULT 'Good',
     is_available    TINYINT(1) DEFAULT 1,
-    CONSTRAINT fk_copy_book FOREIGN KEY (book_id) REFERENCES books(book_id)
+    FOREIGN KEY (book_id) REFERENCES books(book_id)
 );
 
 -- TABLE 9: issue_transactions
 CREATE TABLE issue_transactions (
-    transaction_id  SERIAL PRIMARY KEY,
-    copy_id         BIGINT UNSIGNED NOT NULL,
-    member_id       BIGINT UNSIGNED NOT NULL,
-    librarian_id    BIGINT UNSIGNED NOT NULL,
+    transaction_id  INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    copy_id         INT NOT NULL,
+    member_id       INT NOT NULL,
+    librarian_id    INT NOT NULL,
     issue_date      DATE NOT NULL,
     due_date        DATE NOT NULL,
     return_date     DATE,
     status          ENUM('Issued', 'Returned', 'Overdue') DEFAULT 'Issued',
-    CONSTRAINT fk_it_copy      FOREIGN KEY (copy_id)      REFERENCES book_copies(copy_id),
-    CONSTRAINT fk_it_member    FOREIGN KEY (member_id)    REFERENCES members(member_id),
-    CONSTRAINT fk_it_librarian FOREIGN KEY (librarian_id) REFERENCES librarians(librarian_id)
+    FOREIGN KEY (copy_id)      REFERENCES book_copies(copy_id),
+    FOREIGN KEY (member_id)    REFERENCES members(member_id),
+    FOREIGN KEY (librarian_id) REFERENCES librarians(librarian_id)
 );
 
 -- TABLE 10: fines
 CREATE TABLE fines (
-    fine_id         SERIAL PRIMARY KEY,
-    transaction_id  BIGINT UNSIGNED NOT NULL,
-    member_id       BIGINT UNSIGNED NOT NULL,
+    fine_id         INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    transaction_id  INT NOT NULL,
+    member_id       INT NOT NULL,
     fine_amount     DECIMAL(8,2) NOT NULL,
     paid_status     ENUM('Paid', 'Unpaid') DEFAULT 'Unpaid',
     fine_date       DATE NOT NULL,
-    CONSTRAINT chk_fine    CHECK (fine_amount >= 0),
-    CONSTRAINT fk_fine_txn FOREIGN KEY (transaction_id) REFERENCES issue_transactions(transaction_id),
-    CONSTRAINT fk_fine_mem FOREIGN KEY (member_id)      REFERENCES members(member_id)
+    FOREIGN KEY (transaction_id) REFERENCES issue_transactions(transaction_id),
+    FOREIGN KEY (member_id)      REFERENCES members(member_id)
 );
 
 -- SAMPLE DATA
-
 
 -- 20 Publishers
 INSERT INTO publishers (publisher_name, address, phone, email) VALUES
@@ -372,8 +369,7 @@ INSERT INTO fines (transaction_id, member_id, fine_amount, paid_status, fine_dat
 (19, 19, 24.00, 'Unpaid', '2024-10-01'),
 (24, 24, 10.00, 'Unpaid', '2024-10-01');
 
---CRUD OPERATIONS
-
+-- CRUD OPERATIONS
 
 -- A1. Insert a new publisher
 INSERT INTO publishers (publisher_name, address, phone, email)
@@ -739,10 +735,10 @@ SELECT CONCAT(m.first_name, ' ', m.last_name) AS member_name,
        COUNT(it.transaction_id) AS total_borrowings
 FROM members m
 LEFT JOIN issue_transactions it ON m.member_id = it.member_id
-GROUP BY m.member_id, member_name
+GROUP BY m.member_id
 ORDER BY total_borrowings DESC;
 
---  VIEWS
+-- VIEWS
 
 -- VIEW 1: Available books
 CREATE OR REPLACE VIEW available_books_view AS
@@ -850,7 +846,7 @@ SELECT
 FROM members m
 LEFT JOIN issue_transactions it ON m.member_id = it.member_id
 LEFT JOIN fines f ON m.member_id = f.member_id
-GROUP BY m.member_id, member_name, m.email, m.membership_expiry;
+GROUP BY m.member_id;
 
 -- VIEW 7: Publisher book count
 CREATE OR REPLACE VIEW publisher_book_count_view AS
@@ -863,7 +859,7 @@ SELECT
     COALESCE(SUM(b.total_copies), 0) AS total_copies
 FROM publishers p
 LEFT JOIN books b ON p.publisher_id = b.publisher_id
-GROUP BY p.publisher_id, p.publisher_name, p.phone, publisher_email;
+GROUP BY p.publisher_id;
 
 -- VIEW 8: Category book count
 CREATE OR REPLACE VIEW category_book_count_view AS
@@ -875,7 +871,7 @@ SELECT
     COALESCE(SUM(b.total_copies), 0) AS total_copies
 FROM categories c
 LEFT JOIN books b ON c.category_id = b.category_id
-GROUP BY c.category_id, c.category_name, c.description;
+GROUP BY c.category_id;
 
 -- VIEW 9: Librarian transactions
 CREATE OR REPLACE VIEW librarian_transaction_view AS
@@ -890,7 +886,7 @@ SELECT
     SUM(CASE WHEN it.status = 'Overdue' THEN 1 ELSE 0 END) AS overdue
 FROM librarians l
 LEFT JOIN issue_transactions it ON l.librarian_id = it.librarian_id
-GROUP BY l.librarian_id, librarian_name, l.email, l.hire_date;
+GROUP BY l.librarian_id;
 
 -- VIEW 10: Active members
 CREATE OR REPLACE VIEW active_members_view AS
@@ -905,4 +901,4 @@ FROM members m
 JOIN issue_transactions it ON m.member_id = it.member_id
 WHERE m.membership_expiry >= CURDATE()
   AND it.status IN ('Issued', 'Overdue')
-GROUP BY m.member_id, member_name, m.email, m.phone, m.membership_expiry;
+GROUP BY m.member_id;
